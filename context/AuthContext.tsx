@@ -17,7 +17,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { auth } from "../lib/firebase";
+import { getFirebaseAuth } from "../lib/firebase";
 
 interface AuthContextValue {
   user: User | null;
@@ -55,28 +55,36 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const loginWithGoogle = useCallback(async () => {
     setError(null);
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const firebaseAuth = getFirebaseAuth();
+    await signInWithPopup(firebaseAuth, provider);
   }, []);
 
   const loginWithEmail = useCallback(async (email: string, password: string) => {
     setError(null);
-    await signInWithEmailAndPassword(auth, email, password);
+    const firebaseAuth = getFirebaseAuth();
+    await signInWithEmailAndPassword(firebaseAuth, email, password);
   }, []);
 
   const registerWithEmail = useCallback(async (email: string, password: string) => {
     setError(null);
-    await createUserWithEmailAndPassword(auth, email, password);
+    const firebaseAuth = getFirebaseAuth();
+    await createUserWithEmailAndPassword(firebaseAuth, email, password);
   }, []);
 
   const logout = useCallback(async () => {
     setError(null);
-    await signOut(auth);
+    const firebaseAuth = getFirebaseAuth();
+    await signOut(firebaseAuth);
   }, []);
 
   const resetError = useCallback(() => setError(null), []);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, async (firebaseUser) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const firebaseAuth = getFirebaseAuth();
+    return onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (!firebaseUser) {
         setUser(null);
         setToken(null);
@@ -89,7 +97,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const emailAllowed = email ? allowedGmails.includes(email) : false;
 
       if (!emailAllowed) {
-        await signOut(auth);
+        await signOut(firebaseAuth);
         setError("Your Gmail address is not whitelisted for this application.");
         setUser(null);
         setToken(null);
@@ -108,7 +116,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [allowedGmails]);
 
   useEffect(() => {
-    return onIdTokenChanged(auth, async (firebaseUser) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const firebaseAuth = getFirebaseAuth();
+    return onIdTokenChanged(firebaseAuth, async (firebaseUser) => {
       if (!firebaseUser) {
         setToken(null);
         return;
