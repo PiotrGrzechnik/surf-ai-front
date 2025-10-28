@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { DecisionTreeClassifier } from "ml-cart";
+import type { TrainingOptions } from "ml-cart";
 import { firebaseAdminAuth } from "../../lib/firebaseAdmin";
 import { connectMongo } from "../../lib/mongodb";
 import { SurfRating } from "../../models/SurfRating";
@@ -32,7 +33,7 @@ interface PredictResponse {
   samplesUsed: number;
 }
 
-const TREE_CONFIG = { gainFunction: "gini", maxDepth: 6, minNumSamples: 2 };
+const TREE_CONFIG: TrainingOptions = { gainFunction: "gini", maxDepth: 6, minNumSamples: 2 };
 
 export default async function handler(
   req: NextApiRequest,
