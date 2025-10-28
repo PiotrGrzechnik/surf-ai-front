@@ -18,5 +18,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# TypeScript
+tsconfig.tsbuildinfo
+
 # OS generated files
 .DS_Store

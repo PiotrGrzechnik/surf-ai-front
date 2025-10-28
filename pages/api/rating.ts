@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { firebaseAdminAuth } from "../../lib/firebaseAdmin";
-import { connectMongo } from "../../lib/mongodb";
-import { SurfRating } from "../../models/SurfRating";
-import type { RatingQuality, RatingRequestBody, RatingWaveSize } from "../../types/rating";
+import { firebaseAdminAuth } from "@/lib/firebaseAdmin";
+import { connectMongo } from "@/lib/mongodb";
+import { SurfRating } from "@/models/SurfRating";
+import type { RatingQuality, RatingRequestBody, RatingWaveSize } from "@/types/rating";
 
 const WAVE_SIZE_OPTIONS: RatingWaveSize[] = ["flat", "small", "medium", "big"];
 const QUALITY_OPTIONS: RatingQuality[] = ["zero", "clean", "fair", "choppy", "messy"];

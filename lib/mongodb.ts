@@ -13,13 +13,15 @@ declare global {
   var mongooseCache: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI ?? "";
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
-}
-
 const cache: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
+
+function ensureMongoUri(): string {
+  const uri = process.env.MONGODB_URI ?? "";
+  if (!uri) {
+    throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+  }
+  return uri;
+}
 
 /**
  * Establishes (or reuses) a Mongoose connection.
@@ -30,7 +32,7 @@ export async function connectMongo(): Promise<typeof mongoose> {
   }
 
   if (!cache.promise) {
-    cache.promise = mongoose.connect(MONGODB_URI, { bufferCommands: false });
+    cache.promise = mongoose.connect(ensureMongoUri(), { bufferCommands: false });
   }
 
   cache.conn = await cache.promise;

@@ -1,6 +1,6 @@
 # Surf Forecast AI Predictor — Frontend
 
-Surf Forecast AI Predictor is a production-ready Next.js 14 application that authenticates whitelisted Gmail users through Firebase, fetches real-time marine forecasts for Playa de las Arenas (Valencia) from Open-Meteo, stores surfer ratings in MongoDB, and trains an on-demand decision tree using `ml-cart` to predict surf quality.
+Surf Forecast AI Predictor is a production-ready Next.js 14 application that authenticates whitelisted Gmail users through Firebase, fetches real-time marine forecasts for Playa de las Arenas (Valencia) from Open-Meteo, stores surfer ratings in MongoDB, and trains an on-demand decision tree using `ml-cart` to predict surf quality. Supporting maintenance scripts (seed/train utilities) live alongside the app in the `scripts/` directory.
 
 ## Stack
 
@@ -87,6 +87,8 @@ npm run dev
 ## Project Structure
 
 ```
+scripts/                # Seed/train utilities + env loader
+data/                   # Sample ratings/forecast payloads
 pages/
   index.tsx            # Main UI
   api/
@@ -137,5 +139,17 @@ Documents live in `surf_ratings`:
 - [ ] Provision MongoDB Atlas cluster and whitelist Vercel IPs as needed
 - [ ] Secure Firebase Admin credentials in the hosting environment
 - [ ] Run `npm run build` before deploying
+
+## Backend Utilities
+
+Maintenance helpers for seeding and training now live under `scripts/` and share the main app's dependencies:
+
+```bash
+npm run backend:seed
+npm run backend:train -- demo-user
+```
+
+Both commands read the root `.env.local` (or `.env`) automatically; no extra configuration files are required.
+Sample datasets reside in `data/` (`sample-ratings.json`, `sample-forecast.json`) and can be swapped by passing a path (for seeding) or setting `FORECAST_FALLBACK_PATH`.
 
 Happy forecasting! 🏄‍♂️🌊

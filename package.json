@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "backend:seed": "tsx scripts/seed.ts",
+    "backend:train": "tsx scripts/train.ts"
   },
   "dependencies": {
     "clsx": "^2.0.0",
+    "dotenv": "^16.3.1",
     "firebase": "^10.7.2",
     "firebase-admin": "^11.10.1",
     "ml-cart": "^2.1.1",
@@ -29,6 +32,7 @@
     "eslint-config-next": "14.1.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.5",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   }
 }

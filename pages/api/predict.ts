@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { DecisionTreeClassifier } from "ml-cart";
 import type { TrainingOptions } from "ml-cart";
-import { firebaseAdminAuth } from "../../lib/firebaseAdmin";
-import { connectMongo } from "../../lib/mongodb";
-import { SurfRating } from "../../models/SurfRating";
-import type { RatingQuality, RatingWaveSize } from "../../types/rating";
+import { firebaseAdminAuth } from "@/lib/firebaseAdmin";
+import { connectMongo } from "@/lib/mongodb";
+import { SurfRating } from "@/models/SurfRating";
+import type { RatingQuality, RatingWaveSize } from "@/types/rating";
 
 const FEATURE_FIELDS = [
   "waveSize",
