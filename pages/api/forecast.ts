@@ -1,6 +1,3 @@
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { firebaseAdminAuth } from "@/lib/firebaseAdmin";
 import type { ForecastResponse } from "@/types/forecast";
@@ -33,11 +30,6 @@ export default async function handler(
     const forecastResponse = await fetch(FORECAST_URL);
     if (!forecastResponse.ok) {
       console.error("[forecast] remote fetch failed", forecastResponse.status, forecastResponse.statusText);
-      const fallback = await loadForecastFallback();
-      if (fallback) {
-        res.setHeader("Cache-Control", "no-store");
-        return res.status(200).json(fallback);
-      }
       return res.status(502).json({ message: "Unable to retrieve forecast data" });
     }
 
@@ -46,11 +38,6 @@ export default async function handler(
 
     if (!hourly?.time) {
       console.error("[forecast] malformed remote payload");
-      const fallback = await loadForecastFallback();
-      if (fallback) {
-        res.setHeader("Cache-Control", "no-store");
-        return res.status(200).json(fallback);
-      }
       return res.status(500).json({ message: "Forecast data is incomplete" });
     }
 
@@ -81,37 +68,6 @@ export default async function handler(
     return res.status(200).json(payload);
   } catch (error) {
     console.error("[forecast] error", error);
-    const fallback = await loadForecastFallback();
-    if (fallback) {
-      res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json(fallback);
-    }
     return res.status(500).json({ message: "Internal Server Error" });
   }
-}
-
-async function loadForecastFallback(): Promise<ForecastResponse | null> {
-  try {
-    const candidates = [
-      process.env.FORECAST_FALLBACK_PATH,
-      "data/sample-forecast.json",
-    ].filter((value): value is string => Boolean(value));
-
-    for (const candidate of candidates) {
-      const absolute = resolve(process.cwd(), candidate);
-      if (!existsSync(absolute)) {
-        continue;
-      }
-
-      const raw = await readFile(absolute, "utf-8");
-      const parsed = JSON.parse(raw) as ForecastResponse;
-      if (Array.isArray(parsed?.hours) && typeof parsed.generatedAt === "string") {
-        return parsed;
-      }
-    }
-  } catch (fallbackError) {
-    console.error("[forecast] fallback load failed", fallbackError);
-  }
-
-  return null;
 }
