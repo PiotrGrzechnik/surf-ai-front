@@ -23,7 +23,8 @@ const FEATURE_FIELDS = [
   "windDirection",
 ] as const;
 
-type FeatureKey = (typeof FEATURE_FIELDS)[number];
+const QUALITY_CLASSES: RatingQuality[] = ["zero", "clean", "fair", "choppy", "messy"];
+const WAVE_SIZE_CLASSES: RatingWaveSize[] = ["flat", "small", "medium", "big"];
 
 interface PredictResponse {
   predicted: {
@@ -72,11 +73,19 @@ export default async function handler(
     const qualityClassifier = new DecisionTreeClassifier(TREE_CONFIG);
     const waveSizeClassifier = new DecisionTreeClassifier(TREE_CONFIG);
 
-    qualityClassifier.train(featureMatrix, ratings.map((rating) => rating.rating_quality));
-    waveSizeClassifier.train(featureMatrix, ratings.map((rating) => rating.rating_waveSize));
+    qualityClassifier.train(
+      featureMatrix,
+      ratings.map((rating) => encodeQuality(rating.rating_quality))
+    );
+    waveSizeClassifier.train(
+      featureMatrix,
+      ratings.map((rating) => encodeWaveSize(rating.rating_waveSize))
+    );
 
-    const predictedQuality = qualityClassifier.predict([featureVector])[0] as RatingQuality;
-    const predictedWaveSize = waveSizeClassifier.predict([featureVector])[0] as RatingWaveSize;
+    const predictedQualityIndex = Number(qualityClassifier.predict([featureVector])[0]);
+    const predictedWaveSizeIndex = Number(waveSizeClassifier.predict([featureVector])[0]);
+    const predictedQuality = decodeQuality(predictedQualityIndex);
+    const predictedWaveSize = decodeWaveSize(predictedWaveSizeIndex);
 
     return res.status(200).json({
       predicted: {
@@ -109,4 +118,28 @@ function parseFeatures(query: NextApiRequest["query"]): number[] {
     }
     return numericValue;
   });
+}
+
+function encodeQuality(value: RatingQuality): number {
+  const index = QUALITY_CLASSES.indexOf(value);
+  if (index === -1) {
+    throw new Error(`Unknown quality label: ${value}`);
+  }
+  return index;
+}
+
+function encodeWaveSize(value: RatingWaveSize): number {
+  const index = WAVE_SIZE_CLASSES.indexOf(value);
+  if (index === -1) {
+    throw new Error(`Unknown wave size label: ${value}`);
+  }
+  return index;
+}
+
+function decodeQuality(index: number): RatingQuality {
+  return QUALITY_CLASSES[index] ?? QUALITY_CLASSES[0];
+}
+
+function decodeWaveSize(index: number): RatingWaveSize {
+  return WAVE_SIZE_CLASSES[index] ?? WAVE_SIZE_CLASSES[0];
 }
