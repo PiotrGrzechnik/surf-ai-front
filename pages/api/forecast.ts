@@ -3,10 +3,10 @@ import { firebaseAdminAuth } from "@/lib/firebaseAdmin";
 import type { ForecastResponse } from "@/types/forecast";
 
 const MARINE_FORECAST_URL =
-  "https://marine-api.open-meteo.com/v1/marine?latitude=39.4635&longitude=-0.3203&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,wind_wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period&timezone=UTC";
+  "https://marine-api.open-meteo.com/v1/marine?latitude=39.4635&longitude=-0.3203&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,wind_wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period&timezone=Europe%2FMadrid";
 
 const WIND_FORECAST_URL =
-  "https://api.open-meteo.com/v1/forecast?latitude=39.4635&longitude=-0.3203&hourly=windspeed_10m,winddirection_10m&timezone=UTC";
+  "https://api.open-meteo.com/v1/forecast?latitude=39.4635&longitude=-0.3203&hourly=windspeed_10m,winddirection_10m&timezone=Europe%2FMadrid";
 
 /**
  * Proxy endpoint that authenticates the caller before retrieving formatted
@@ -58,8 +58,11 @@ export default async function handler(
     const marineTimes = marineHourly.time as string[];
     const windTimes = Array.isArray(windHourly?.time) ? (windHourly.time as string[]) : [];
 
+    const offsetSeconds = Number(
+      marineForecast.utc_offset_seconds ?? windForecast.utc_offset_seconds ?? 0
+    );
     const hours = marineTimes.map((time: string, index: number) => {
-      const isoTime = time.endsWith("Z") ? time : new Date(`${time}Z`).toISOString();
+      const isoTime = normaliseTimeToUtc(time, offsetSeconds);
       const windIndex = windTimes[index] === time ? index : windTimes.indexOf(time);
       const resolvedWindIndex = windIndex >= 0 ? windIndex : index;
 
@@ -102,4 +105,34 @@ export default async function handler(
     console.error("[forecast] error", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+function normaliseTimeToUtc(rawTime: string, offsetSeconds: number): string {
+  if (!rawTime) {
+    return new Date().toISOString();
+  }
+
+  if (rawTime.endsWith("Z")) {
+    return rawTime;
+  }
+
+  const paddedTime =
+    rawTime.length === 16
+      ? `${rawTime}:00`
+      : rawTime.length === 19
+      ? rawTime
+      : `${rawTime}:00`;
+
+  const totalSeconds = Math.trunc(offsetSeconds);
+  const sign = totalSeconds >= 0 ? "+" : "-";
+  const absSeconds = Math.abs(totalSeconds);
+  const hours = Math.floor(absSeconds / 3600)
+    .toString()
+    .padStart(2, "0");
+  const minutes = Math.floor((absSeconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const offset = `${sign}${hours}:${minutes}`;
+
+  return new Date(`${paddedTime}${offset}`).toISOString();
 }
