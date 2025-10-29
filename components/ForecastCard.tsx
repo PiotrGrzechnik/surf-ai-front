@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import type { ReactNode } from "react";
 import type { ForecastHour } from "../types/forecast";
 import type { RatingQuality, RatingWaveSize } from "../types/rating";
 
@@ -38,7 +39,9 @@ export function ForecastCard({
               minute: "2-digit",
             })}
           </p>
-          <p className="text-xs text-slate-500">{formatDirection(hour.waveDirection)}</p>
+          <p className="flex items-center gap-2 text-xs text-slate-500">
+            {renderInlineDirection(hour.waveDirection)}
+          </p>
         </div>
 
         {predictedWaveSize && predictedQuality ? (
@@ -51,15 +54,16 @@ export function ForecastCard({
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600 md:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600 md:grid-cols-3 xl:grid-cols-6">
         <Metric label="Wave Ht" value={`${hour.waveSize.toFixed(1)} m`} />
         <Metric label="Period" value={`${hour.wavePeriod.toFixed(1)} s`} />
         <Metric label="Wind Wave" value={`${hour.windWaveHeight.toFixed(1)} m`} />
         <Metric label="Swell" value={`${hour.swellWaveHeight.toFixed(1)} m`} />
         <Metric label="Secondary Swell" value={`${hour.secondarySwellWaveHeight.toFixed(1)} m`} />
         <Metric label="Wind Speed" value={`${hour.windSpeed.toFixed(1)} km/h`} />
-        <Metric label="Wind Dir" value={formatDirection(hour.windDirection)} />
-        <Metric label="Swell Dir" value={formatDirection(hour.swellWaveDirection)} />
+        <DirectionMetric label="Wave Dir" direction={hour.waveDirection} />
+        <DirectionMetric label="Wind Dir" direction={hour.windDirection} />
+        <DirectionMetric label="Swell Dir" direction={hour.swellWaveDirection} />
       </div>
     </button>
   );
@@ -67,21 +71,75 @@ export function ForecastCard({
 
 interface MetricProps {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 function Metric({ label, value }: MetricProps) {
   return (
     <div>
       <p className="font-semibold text-slate-700">{label}</p>
-      <p>{value}</p>
+      <p className="flex items-center gap-1">{value}</p>
     </div>
   );
 }
 
-function formatDirection(direction: number): string {
-  const normalized = ((direction % 360) + 360) % 360;
-  return `${Math.round(normalized)}°`;
+function DirectionMetric({ label, direction }: { label: string; direction: number }) {
+  const normalized = normalizeDegrees(direction);
+
+  return (
+    <div>
+      <p className="font-semibold text-slate-700">{label}</p>
+      <div className="flex items-center gap-3">
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
+          <CompassLabel position="top">N</CompassLabel>
+          <CompassLabel position="bottom">S</CompassLabel>
+          <CompassLabel position="left">W</CompassLabel>
+          <CompassLabel position="right">E</CompassLabel>
+          <span
+            className="inline-block text-lg text-surf-green transition-transform"
+            style={{ transform: `rotate(${normalized}deg)` }}
+          >
+            ↑
+          </span>
+        </div>
+        <span className="text-sm text-slate-600">{Math.round(normalized)}°</span>
+      </div>
+    </div>
+  );
+}
+
+function CompassLabel({ position, children }: { position: "top" | "bottom" | "left" | "right"; children: ReactNode }) {
+  const base = "absolute text-[10px] font-medium text-slate-400";
+  const positionClass =
+    position === "top"
+      ? "top-1 left-1/2 -translate-x-1/2"
+      : position === "bottom"
+      ? "bottom-1 left-1/2 -translate-x-1/2"
+      : position === "left"
+      ? "left-1 top-1/2 -translate-y-1/2"
+      : "right-1 top-1/2 -translate-y-1/2";
+
+  return <span className={`${base} ${positionClass}`}>{children}</span>;
+}
+
+function renderInlineDirection(direction: number): ReactNode {
+  const normalized = normalizeDegrees(direction);
+  return (
+    <>
+      <span className="text-sm">{inlineArrow(normalized)}</span>
+      <span>{`${Math.round(normalized)}°`}</span>
+    </>
+  );
+}
+
+function inlineArrow(direction: number): string {
+  const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
+  const index = Math.round(direction / 45) % arrows.length;
+  return arrows[index];
+}
+
+function normalizeDegrees(value: number): number {
+  return Number.isFinite(value) ? ((value % 360) + 360) % 360 : 0;
 }
 
 function renderWaveSizeBadge(waveSize: RatingWaveSize) {

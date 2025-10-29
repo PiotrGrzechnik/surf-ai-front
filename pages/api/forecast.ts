@@ -79,7 +79,9 @@ export default async function handler(
         swellWaveDirection: Number(marineHourly.swell_wave_direction?.[index] ?? 0),
         secondarySwellWaveHeight: Number(marineHourly.secondary_swell_wave_height?.[index] ?? 0),
         secondarySwellWavePeriod: Number(marineHourly.secondary_swell_wave_period?.[index] ?? 0),
-        secondarySwellWaveDirection: Number(marineHourly.secondary_swell_wave_direction?.[index] ?? 0),
+        secondarySwellWaveDirection: Number(
+          marineHourly.secondary_swell_wave_direction?.[index] ?? 0
+        ),
         windSpeed: Number(
           Array.isArray(windHourly?.windspeed_10m) ? windHourly.windspeed_10m?.[resolvedWindIndex] ?? 0 : 0
         ),
@@ -89,14 +91,20 @@ export default async function handler(
       };
     });
 
-    if (hours.length === 0) {
+    const upcomingHours = hours.filter((hour) => Date.parse(hour.time) >= Date.now());
+    const limitedHours =
+      upcomingHours.length >= 5
+        ? upcomingHours.slice(0, 5)
+        : hours.slice(0, Math.min(5, hours.length));
+
+    if (limitedHours.length === 0) {
       console.error("[forecast] no hourly data returned");
       return res.status(500).json({ message: "Forecast data is incomplete" });
     }
 
     const payload: ForecastResponse = {
       generatedAt: new Date().toISOString(),
-      hours,
+      hours: limitedHours,
     };
 
     res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate");
