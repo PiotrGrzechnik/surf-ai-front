@@ -52,16 +52,22 @@ export function ForecastCard({
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600 md:grid-cols-3 xl:grid-cols-6">
-        <Metric label="Wave Ht" value={`${hour.waveSize.toFixed(1)} m`} />
-        <Metric label="Period" value={`${hour.wavePeriod.toFixed(1)} s`} />
-        <Metric label="Wind Wave" value={`${hour.windWaveHeight.toFixed(1)} m`} />
-        <Metric label="Swell" value={`${hour.swellWaveHeight.toFixed(1)} m`} />
-        <Metric label="Secondary Swell" value={`${hour.secondarySwellWaveHeight.toFixed(1)} m`} />
-        <Metric label="Wind Speed" value={`${hour.windSpeed.toFixed(1)} km/h`} />
-        <DirectionMetric label="Wave Dir" direction={hour.waveDirection} />
-        <DirectionMetric label="Wind Dir" direction={hour.windDirection} />
-        <DirectionMetric label="Swell Dir" direction={hour.swellWaveDirection} />
+      <div className="mt-4 space-y-4 text-xs text-slate-600">
+        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 pb-4 sm:grid-cols-2 md:grid-cols-3">
+          <Metric label="Wave Ht" value={`${hour.waveSize.toFixed(1)} m`} emphasis="primary" />
+          <Metric label="Period" value={`${hour.wavePeriod.toFixed(1)} s`} emphasis="primary" />
+          <Metric label="Wind Wave" value={`${hour.windWaveHeight.toFixed(1)} m`} emphasis="primary" />
+        </div>
+        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 pb-4 sm:grid-cols-2 md:grid-cols-3">
+          <Metric label="Swell" value={`${hour.swellWaveHeight.toFixed(1)} m`} />
+          <Metric label="Secondary Swell" value={`${hour.secondarySwellWaveHeight.toFixed(1)} m`} />
+          <Metric label="Wind Speed" value={`${hour.windSpeed.toFixed(1)} km/h`} />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <DirectionMetric label="Wave Dir" direction={hour.waveDirection} />
+          <DirectionMetric label="Wind Dir" direction={hour.windDirection} />
+          <DirectionMetric label="Swell Dir" direction={hour.swellWaveDirection} />
+        </div>
       </div>
     </button>
   );
@@ -70,13 +76,24 @@ export function ForecastCard({
 interface MetricProps {
   label: string;
   value: ReactNode;
+  emphasis?: "default" | "primary";
 }
 
-function Metric({ label, value }: MetricProps) {
+function Metric({ label, value, emphasis = "default" }: MetricProps) {
+  const isPrimary = emphasis === "primary";
+  const labelClass = clsx(
+    "font-semibold",
+    isPrimary ? "text-sm text-sky-600" : "text-xs text-slate-700"
+  );
+  const valueClass = clsx(
+    "flex items-center gap-1",
+    isPrimary ? "text-base font-semibold text-sky-700" : "text-xs text-slate-600"
+  );
+
   return (
     <div>
-      <p className="font-semibold text-slate-700">{label}</p>
-      <p className="flex items-center gap-1">{value}</p>
+      <p className={labelClass}>{label}</p>
+      <p className={valueClass}>{value}</p>
     </div>
   );
 }
@@ -86,9 +103,9 @@ function DirectionMetric({ label, direction }: { label: string; direction: numbe
   const arrowRotation = (normalized + 180) % 360;
 
   return (
-    <div className="min-w-[5.5rem]">
+    <div className="flex flex-col gap-2">
       <p className="font-semibold text-slate-700">{label}</p>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center">
         <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
           <CompassLabel position="top">N</CompassLabel>
           <CompassLabel position="bottom">S</CompassLabel>
