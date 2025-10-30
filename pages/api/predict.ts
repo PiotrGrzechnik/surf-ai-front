@@ -21,6 +21,7 @@ const FEATURE_FIELDS = [
   "secondarySwellWaveDirection",
   "windSpeed",
   "windDirection",
+  "seaLevel",
 ] as const;
 
 const QUALITY_CLASSES: RatingQuality[] = ["zero", "clean", "fair", "choppy", "messy"];
@@ -67,7 +68,10 @@ export default async function handler(
     }
 
     const featureMatrix = ratings.map((rating) =>
-      FEATURE_FIELDS.map((field) => Number(rating[field]))
+      FEATURE_FIELDS.map((field) => {
+        const numeric = Number(rating[field] ?? 0);
+        return Number.isFinite(numeric) ? numeric : 0;
+      })
     );
 
     const qualityClassifier = new DecisionTreeClassifier(TREE_CONFIG);

@@ -58,9 +58,10 @@ export function ForecastCard({
           <Metric label="Period" value={`${hour.wavePeriod.toFixed(1)} s`} emphasis="primary" />
           <Metric label="Wind Wave" value={`${hour.windWaveHeight.toFixed(1)} m`} emphasis="primary" />
         </div>
-        <div className="grid grid-cols-3 gap-4 py-4">
+        <div className="grid grid-cols-2 gap-4 py-4 md:grid-cols-4">
           <Metric label="Swell" value={`${hour.swellWaveHeight.toFixed(1)} m`} />
           <Metric label="Secondary Swell" value={`${hour.secondarySwellWaveHeight.toFixed(1)} m`} />
+          <Metric label="Sea Level" value={`${hour.seaLevel.toFixed(2)} m`} />
           <Metric label="Wind Speed" value={`${hour.windSpeed.toFixed(1)} km/h`} />
         </div>
         <div className="grid grid-cols-3 gap-4 pt-4">

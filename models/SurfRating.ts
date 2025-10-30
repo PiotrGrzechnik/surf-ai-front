@@ -20,6 +20,7 @@ export interface ISurfRating extends Document {
   secondarySwellWaveDirection: number;
   windSpeed: number;
   windDirection: number;
+  seaLevel: number;
   rating_waveSize: "flat" | "small" | "medium" | "big";
   rating_quality: "zero" | "clean" | "fair" | "choppy" | "messy";
   createdAt: Date;
@@ -44,6 +45,7 @@ const surfRatingSchema = new Schema<ISurfRating>(
     secondarySwellWaveDirection: { type: Number, required: true },
     windSpeed: { type: Number, required: true },
     windDirection: { type: Number, required: true },
+    seaLevel: { type: Number, default: 0 },
     rating_waveSize: {
       type: String,
       required: true,

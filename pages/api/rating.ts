@@ -124,6 +124,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse, userId: str
     secondarySwellWaveDirection: requireNumber(body.secondarySwellWaveDirection, "secondarySwellWaveDirection"),
     windSpeed: requireNumber(body.windSpeed, "windSpeed"),
     windDirection: requireNumber(body.windDirection, "windDirection"),
+    seaLevel: requireNumber(body.seaLevel, "seaLevel"),
     rating_waveSize: rating.waveSize,
     rating_quality: ratingQuality,
   };
@@ -171,6 +172,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, userId: stri
     secondarySwellWaveDirection: requireNumber(body.secondarySwellWaveDirection, "secondarySwellWaveDirection"),
     windSpeed: requireNumber(body.windSpeed, "windSpeed"),
     windDirection: requireNumber(body.windDirection, "windDirection"),
+    seaLevel: requireNumber(body.seaLevel, "seaLevel"),
     rating_waveSize: body.rating.waveSize,
     rating_quality: ratingQuality,
   };

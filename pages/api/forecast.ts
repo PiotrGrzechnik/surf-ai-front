@@ -3,7 +3,7 @@ import { firebaseAdminAuth } from "@/lib/firebaseAdmin";
 import type { ForecastResponse } from "@/types/forecast";
 
 const MARINE_FORECAST_URL =
-  "https://marine-api.open-meteo.com/v1/marine?latitude=39.4635&longitude=-0.3203&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,wind_wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period&timezone=Europe%2FMadrid";
+  "https://marine-api.open-meteo.com/v1/marine?latitude=39.4635&longitude=-0.3203&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,wind_wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,secondary_swell_wave_height,secondary_swell_wave_direction,secondary_swell_wave_period,sea_level_height_msl&timezone=Europe%2FMadrid";
 
 const WIND_FORECAST_URL =
   "https://api.open-meteo.com/v1/forecast?latitude=39.4635&longitude=-0.3203&hourly=windspeed_10m,winddirection_10m&timezone=Europe%2FMadrid";
@@ -49,7 +49,7 @@ export default async function handler(
     const windForecast = await windResponse.json();
     const marineHourly = marineForecast.hourly;
     const windHourly = windForecast.hourly;
-
+console.log(marineHourly);
     if (!Array.isArray(marineHourly?.time)) {
       console.error("[forecast] malformed marine payload");
       return res.status(500).json({ message: "Forecast data is incomplete" });
@@ -88,6 +88,7 @@ export default async function handler(
         windDirection: Number(
           Array.isArray(windHourly?.winddirection_10m) ? windHourly.winddirection_10m?.[resolvedWindIndex] ?? 0 : 0
         ),
+        seaLevel: Number(marineHourly.sea_level_height_msl?.[index] ?? 0),
       };
     });
 

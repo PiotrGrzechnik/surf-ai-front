@@ -17,6 +17,7 @@ export interface ForecastHour {
   secondarySwellWaveDirection: number;
   windSpeed: number;
   windDirection: number;
+  seaLevel: number;
 }
 
 /**
