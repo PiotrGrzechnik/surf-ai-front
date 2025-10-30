@@ -52,18 +52,18 @@ export function ForecastCard({
         )}
       </div>
 
-      <div className="mt-4 space-y-4 text-xs text-slate-600">
-        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 pb-4 sm:grid-cols-2 md:grid-cols-3">
+      <div className="mt-4 flex flex-col divide-y divide-slate-200 text-xs text-slate-600">
+        <div className="grid grid-cols-3 gap-4 pb-4">
           <Metric label="Wave Ht" value={`${hour.waveSize.toFixed(1)} m`} emphasis="primary" />
           <Metric label="Period" value={`${hour.wavePeriod.toFixed(1)} s`} emphasis="primary" />
           <Metric label="Wind Wave" value={`${hour.windWaveHeight.toFixed(1)} m`} emphasis="primary" />
         </div>
-        <div className="grid grid-cols-1 gap-4 border-b border-slate-200 pb-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4 py-4">
           <Metric label="Swell" value={`${hour.swellWaveHeight.toFixed(1)} m`} />
           <Metric label="Secondary Swell" value={`${hour.secondarySwellWaveHeight.toFixed(1)} m`} />
           <Metric label="Wind Speed" value={`${hour.windSpeed.toFixed(1)} km/h`} />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4 pt-4">
           <DirectionMetric label="Wave Dir" direction={hour.waveDirection} />
           <DirectionMetric label="Wind Dir" direction={hour.windDirection} />
           <DirectionMetric label="Swell Dir" direction={hour.swellWaveDirection} />
@@ -103,7 +103,7 @@ function DirectionMetric({ label, direction }: { label: string; direction: numbe
   const arrowRotation = (normalized + 180) % 360;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col items-center gap-2 md:items-start">
       <p className="font-semibold text-slate-700">{label}</p>
       <div className="flex items-center">
         <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
