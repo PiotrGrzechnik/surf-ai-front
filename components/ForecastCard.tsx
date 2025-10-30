@@ -37,10 +37,8 @@ export function ForecastCard({
               weekday: "short",
               hour: "2-digit",
               minute: "2-digit",
+              hour12: false,
             })}
-          </p>
-          <p className="flex items-center gap-2 text-xs text-slate-500">
-            {renderInlineDirection(hour.waveDirection)}
           </p>
         </div>
 
@@ -85,24 +83,24 @@ function Metric({ label, value }: MetricProps) {
 
 function DirectionMetric({ label, direction }: { label: string; direction: number }) {
   const normalized = normalizeDegrees(direction);
+  const arrowRotation = (normalized + 180) % 360;
 
   return (
-    <div>
+    <div className="min-w-[5.5rem]">
       <p className="font-semibold text-slate-700">{label}</p>
-      <div className="flex items-center gap-3">
-        <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center gap-5">
+        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
           <CompassLabel position="top">N</CompassLabel>
           <CompassLabel position="bottom">S</CompassLabel>
           <CompassLabel position="left">W</CompassLabel>
           <CompassLabel position="right">E</CompassLabel>
           <span
-            className="inline-block text-lg text-surf-green transition-transform"
-            style={{ transform: `rotate(${normalized}deg)` }}
+            className="inline-block text-2xl text-surf-green transition-transform leading-none"
+            style={{ transform: `rotate(${arrowRotation}deg)` }}
           >
             ↑
           </span>
         </div>
-        <span className="text-sm text-slate-600">{Math.round(normalized)}°</span>
       </div>
     </div>
   );
@@ -134,7 +132,8 @@ function renderInlineDirection(direction: number): ReactNode {
 
 function inlineArrow(direction: number): string {
   const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
-  const index = Math.round(direction / 45) % arrows.length;
+  const adjusted = normalizeDegrees(direction + 180);
+  const index = Math.round(adjusted / 45) % arrows.length;
   return arrows[index];
 }
 
